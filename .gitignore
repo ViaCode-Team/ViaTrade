@@ -1,0 +1,86 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# === Virtual environment ===
+.venv/
+venv/
+env/
+ENV/
+.Python
+
+# === IDE / Editors ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# === Logs / Cache ===
+*.log
+*.tmp
+*.bak
+.cache/
+pytest_cache/
+coverage.xml
+htmlcov/
+.tox/
+.mypy_cache/
+.pytest_cache/
+__pypackages__/
+celerybeat-schedule
+
+# === Configuration secrets ===
+.env
+.env.*
+*.env
+secrets.json
+config.yaml
+
+# === Database / Migrations ===
+migrations/versions/*.pyc
+migrations/__pycache__/
+migrations/versions/__pycache__/
+alembic.ini
+
+# === Compiled code / Build ===
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+*.whl
+
+# === Static / Uploads ===
+staticfiles/
+media/
+uploads/
+tmp/
+
+# === Jupyter / Notebooks ===
+.ipynb_checkpoints/
+
+# === Docker / Compose ===
+docker-compose.override.yml
+*.pid
+*.sock
+
+# === Custom cache / Generated files ===
+*.db
+*.sqlite3
+*.sqlite
+*.csv
+*.json
+*.xlsx
