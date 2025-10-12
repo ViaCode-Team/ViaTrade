@@ -5,5 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aioodbc>=0.5.0",
+    "alembic>=1.17.0",
+    "pyodbc>=5.2.0",
+    "redis>=6.4.0",
     "requests>=2.32.5",
+    "sqlalchemy-orm>=1.2.10",
+    "sqlalchemy[asyncio]>=2.0.44",
 ]
