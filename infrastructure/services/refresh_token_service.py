@@ -5,7 +5,7 @@ from application.dto.auth_dto import RefreshTokenDto, TokenResponseDto
 from application.interface.itoken_helper import ITokenHelper
 
 
-class RefreshTokenUseCase:
+class RefreshTokenService:
     def __init__(
         self,
         session: AsyncSession,

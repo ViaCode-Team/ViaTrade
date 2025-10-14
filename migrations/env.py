@@ -10,12 +10,11 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Используем AppConfig, Pydantic сам подхватит env и создаст вложенные классы
 app_config = AppConfig()
 db_url = app_config.db.build_url()
 config.set_main_option("sqlalchemy.url", str(db_url))
 
-target_metadata = BaseModel.metadata  # если BaseModel это declarative_base
+target_metadata = BaseModel.metadata
 
 def run_migrations_offline():
     context.configure(

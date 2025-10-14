@@ -16,5 +16,6 @@ class AppConfig(BaseSettings):
 
     app_mode: str = Field(alias="APP_MODE")
     analyzer_mode: str = Field(alias="ANALYZER_MODE")
+    secret_key: str = Field(alias="SECRET_KEY")
     db: DatabaseConfig
     redis: RedisConfig

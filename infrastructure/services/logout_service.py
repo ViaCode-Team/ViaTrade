@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from application.interface.itoken_helper import ITokenHelper
 
 
-class LogoutUseCase:
+class LogoutService:
     def __init__(
         self,
         session: AsyncSession,
