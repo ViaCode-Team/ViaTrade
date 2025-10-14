@@ -4,10 +4,10 @@ from redis.asyncio import Redis
 
 from domain.exceptions import TokenExpiredException, TokenInvalidException
 from domain.model import TokenPair, TokenPayload
-from infrastructure.interface.itoken_manager import ITokenManager
+from application.interface.itoken_helper import ITokenHelper
 
 
-class JwtTokenHelper(ITokenManager):
+class JwtTokenHelper(ITokenHelper):
     def __init__(
         self,
         redis_client: Redis,

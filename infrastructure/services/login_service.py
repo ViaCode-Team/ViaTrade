@@ -4,7 +4,7 @@ from application.dto.auth_dto import LoginDto, TokenResponseDto
 from application.interface.iauth_service import IAuthService
 from application.interface.ipassword_hasher import IPasswordHasher
 from domain.exceptions import InvalidCredentialsException
-from infrastructure.interface.itoken_manager import ITokenManager
+from application.interface.itoken_helper import ITokenHelper
 from infrastructure.repositories.user import UserRepository
 
 
@@ -13,11 +13,11 @@ class LoginService(IAuthService):
         self,
         session: AsyncSession,
         password_hasher: IPasswordHasher,
-        token_manager: ITokenManager,
+        token_helper: ITokenHelper,
     ) -> None:
         self.session = session
         self.password_hasher = password_hasher
-        self.token_manager = token_manager
+        self.token_helper = token_helper
         self.user_repo = UserRepository(session)
 
     async def execute(self, dto: LoginDto) -> TokenResponseDto:
@@ -28,7 +28,7 @@ class LoginService(IAuthService):
         if not self.password_hasher.verify_password(dto.password, user.hash_password):
             raise InvalidCredentialsException("Invalid login or password")
 
-        tokens = await self.token_manager.create_tokens(user.id, user.login)
+        tokens = await self.token_helper.create_tokens(user.id, user.login)
 
         return TokenResponseDto(
             access_token=tokens.access_token,

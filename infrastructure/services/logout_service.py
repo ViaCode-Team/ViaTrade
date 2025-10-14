@@ -1,16 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructure.interface.itoken_manager import ITokenManager
+from application.interface.itoken_helper import ITokenHelper
 
 
 class LogoutUseCase:
     def __init__(
         self,
         session: AsyncSession,
-        token_manager: ITokenManager,
+        token_helper: ITokenHelper,
     ) -> None:
         self.session = session
-        self.token_manager = token_manager
+        self.token_helper = token_helper
 
     async def execute(self, access_token: str) -> None:
-        await self.token_manager.revoke_access_token(access_token)
+        await self.token_helper.revoke_access_token(access_token)

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from domain.model import TokenPair, TokenPayload
 
 
-class ITokenManager(ABC):
+class ITokenHelper(ABC):
     @abstractmethod
     async def create_tokens(self, user_id: int, login: str) -> TokenPair:
         pass
