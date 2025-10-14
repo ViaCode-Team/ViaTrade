@@ -1,7 +1,6 @@
 from datetime import datetime
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from .base import BaseModel, Str128, Str512
 
 
@@ -12,7 +11,6 @@ class User(BaseModel):
     refresh_token: Mapped[Str512 | None]
 
     trades: Mapped[list["Trade"]] = relationship(back_populates="user")
-
     user_trade_codes: Mapped[list["UserTradeCode"]] = relationship(back_populates="user")
     user_trade_strategies: Mapped[list["UserTradeStrategy"]] = relationship(back_populates="user")
 
@@ -68,7 +66,7 @@ class TradeStrategy(BaseModel):
 
 class UserTradeStrategy(BaseModel):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    trade_strategy_id: Mapped[int] = mapped_column(ForeignKey("tradestrategies.id"), nullable=False)
+    trade_strategy_id: Mapped[int] = mapped_column(ForeignKey("tradestrategys.id"), nullable=False)
 
     __table_args__ = (
         UniqueConstraint("user_id", "trade_strategy_id", name="uq_user_trade_strategy"),

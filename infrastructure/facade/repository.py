@@ -1,4 +1,3 @@
-
 from application.base.repository import BaseRepository
 from application.interface.icache import ICache
 from domain.base import BaseModel

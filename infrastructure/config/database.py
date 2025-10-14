@@ -1,24 +1,23 @@
-from dataclasses import Field
 
+from pydantic_settings import BaseSettings
 from sqlalchemy import URL
 
-from domain.base import BaseModel
 
+class DatabaseConfig(BaseSettings):
+    DB_ENGINE: str
+    DB_HOST: str
+    DB_NAME: str
+    DB_DRIVER: str
+    DB_TRUSTED_CONNECTION: str
 
-class DatabaseConfig(BaseModel):
-    engine: str = Field(alias="DB_ENGINE")
-    host: str = Field(alias="DB_HOST")
-    name: str = Field(alias="DB_NAME")
-    driver: str = Field(alias="DB_DRIVER")
-    trusted_connection: str = Field(alias="DB_TRUSTED_CONNECTION")
-
-    def build_url(self) -> URL:
-        return URL.create(
-            self.engine,
-            host=self.host,
-            database=self.name,
-            query={
-                "driver": self.driver,
-                "trusted_connection": self.trusted_connection,
-            },
+    def build_url(self) -> str:
+        return str(
+            URL.create(
+                drivername=self.DB_ENGINE,
+                username=None,
+                password=None,
+                host=self.DB_HOST,
+                database=self.DB_NAME,
+                query={"driver": self.DB_DRIVER, "trusted_connection": self.DB_TRUSTED_CONNECTION}
+            )
         )

@@ -1,9 +1,7 @@
-from dataclasses import Field
-
-from domain.base import BaseModel
+from pydantic_settings import BaseSettings
 
 
-class RedisConfig(BaseModel):
-    host: str = Field(alias="REDIS_HOST")
-    port: int = Field(alias="REDIS_PORT")
-    db: int = Field(alias="REDIS_DB")
+class RedisConfig(BaseSettings):
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
