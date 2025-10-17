@@ -2,7 +2,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 from infrastructure.config.app import AppConfig
-from domain.base import BaseModel
+from domain.entity.base import BaseModel
 from domain.entity import User, TradeType, TradeCode, Trade, UserTradeCode, TradeStrategy, UserTradeStrategy
 
 config = context.config

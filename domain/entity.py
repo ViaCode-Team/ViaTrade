@@ -1,7 +1,7 @@
 from datetime import datetime
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import BaseModel, Str128, Str512
+from .entity.base import BaseModel, Str128, Str512
 
 
 class User(BaseModel):

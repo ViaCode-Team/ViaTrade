@@ -1,6 +1,6 @@
 from application.base.repository import BaseRepository
 from application.interface.icache import ICache
-from domain.base import BaseModel
+from domain.entity.base import BaseModel
 
 
 class RepositoryFacade[T: BaseModel]:
