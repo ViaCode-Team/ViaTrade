@@ -23,6 +23,25 @@ class ScreenerResult:
     ATR: float
     Signal: SignalType
 
+
+@dataclass
+class Candle:
+    open: float
+    close: float
+    high: float
+    low: float
+    volume: float
+
+# Moex Models
+class TimeFrame(Enum):
+    MIN1 = 1
+    MIN10 = 10
+    HOUR = 60
+    DAY = 24
+    WEEK = 7
+    MONTH = 31
+
+
 # JWT Models
 @dataclass
 class TokenPair:
