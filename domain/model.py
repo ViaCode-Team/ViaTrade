@@ -23,7 +23,6 @@ class ScreenerResult:
     ATR: float
     Signal: SignalType
 
-
 @dataclass
 class Candle:
     open: float

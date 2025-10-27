@@ -1,7 +1,8 @@
+import aiohttp
 import pandas as pd
 from datetime import datetime, timedelta
 from domain.model import TimeFrame
-from infrastructure.services.moex.moex_api import MoexApiClient
+from infrastructure.services.moex.moex_client import MoexApiClient
 
 
 class MoexLogicService:
@@ -10,44 +11,33 @@ class MoexLogicService:
     def __init__(self):
         self.api = MoexApiClient()
 
-    def get_candles_with_range(
-        self,
-        ticker: str,
-        interval: TimeFrame = TimeFrame.DAY,
-        from_date: str | None = None,
-        till_date: str | None = None,
-    ) -> pd.DataFrame:
-        if till_date is None:
-            till_date = datetime.now().date()
-        else:
-            till_date = datetime.strptime(till_date, "%Y-%m-%d").date()
+    async def get_candles(self, ticker: str, interval: TimeFrame, from_date: str | None, till_date: str | None, is_futures: bool) -> pd.DataFrame:
+        till_date = datetime.strptime(till_date, "%Y-%m-%d").date() if till_date else datetime.now().date()
+        from_date = datetime.strptime(from_date, "%Y-%m-%d").date() if from_date else till_date - timedelta(days=180)
 
-        if from_date is None:
-            from_date = till_date - timedelta(days=180)
-        else:
-            from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
-
-        delta_days = (till_date - from_date).days
+        total_days = (till_date - from_date).days
         max_days = self._estimate_max_days(interval)
 
-        if delta_days <= max_days:
-            return self.api.get_candles(ticker, interval, from_date, till_date)
+        async with aiohttp.ClientSession() as session:
+            if total_days <= max_days:
+                return await self.api.get_candles(session, ticker, interval, from_date, till_date, is_futures)
 
-        frames = []
-        current_start = from_date
-        while current_start < till_date:
-            current_end = min(current_start + timedelta(days=max_days), till_date)
-            df_part = self.api.get_candles(ticker, interval, current_start, current_end)
-            if not df_part.empty:
-                frames.append(df_part)
-            current_start = current_end + timedelta(days=1)
+            frames = []
+            start = from_date
+            while start < till_date:
+                end = min(start + timedelta(days=max_days), till_date)
+                df_part = await self.api.get_candles(session, ticker, interval, start, end, is_futures)
+                if not df_part.empty:
+                    frames.append(df_part)
+                start = end + timedelta(days=1)
 
-        if not frames:
-            return pd.DataFrame()
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
-        return pd.concat(frames, ignore_index=True)
+    async def get_unified_candles(self, ticker: str, interval: TimeFrame, from_date: str | None = None, till_date: str | None = None, instrument_type: str = "stock") -> pd.DataFrame:
+        is_futures = instrument_type.lower() == "futures"
+        return await self.get_candles(ticker, interval, from_date, till_date, is_futures)
 
-    def _estimate_max_days(self, interval: TimeFrame):
+    def _estimate_max_days(self, interval: TimeFrame) -> int:
         if interval == TimeFrame.DAY:
             return 500
         if interval == TimeFrame.HOUR:
@@ -57,7 +47,7 @@ class MoexLogicService:
         if interval == TimeFrame.MIN1:
             return int(500 / 390)
         if interval == TimeFrame.WEEK:
-            return 500 * 7
+            return 3500
         if interval == TimeFrame.MONTH:
-            return 500 * 30
+            return 15000
         return 500
