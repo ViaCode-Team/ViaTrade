@@ -31,6 +31,11 @@ class Candle:
     low: float
     volume: float
 
+class InstumentType(Enum):
+    STOCKS = "stocks"
+    FUTURES = "futures"
+
+
 # Moex Models
 class TimeFrame(Enum):
     MIN1 = 1

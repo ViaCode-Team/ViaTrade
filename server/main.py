@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # from fastapi import FastAPI
@@ -53,20 +55,19 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 import asyncio
-from infrastructure.services.moex.moex_logic import MoexLogicService
 from domain.model import TimeFrame
+from infrastructure.services.moex.moex_logic import MoexDataService
 
 
 async def main():
-    logic = MoexLogicService()
+    service = MoexDataService()
 
-    df_fut = await logic.get_unified_candles(
-        ticker="SiZ5",
-        interval=TimeFrame.HOUR,
-        instrument_type="futures"
+    df = await service.get_last_half_year(
+        ticker="BRX5",
+        interval=TimeFrame.DAY
     )
 
-    print(df_fut.head())
+    print(df.head())
 
 
 if __name__ == "__main__":
