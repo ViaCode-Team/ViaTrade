@@ -54,7 +54,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import asyncio
 from domain.models.logic import TimeFrame
-from infrastructure.services.moex.moex_logic import MoexDataService
+from infrastructure.services.moex.moex_data_service import MoexDataService
 from apscheduler.triggers.cron import CronTrigger
 from infrastructure.services.background.background_service import BackgroundService
 from infrastructure.services.background.service_manager import ServiceManager
@@ -81,4 +81,11 @@ async def main():
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Прерывание пользователем, завершение работы...")
+    except asyncio.CancelledError:
+        print("Асинхронная задача была отменена")
+    finally:
+        print("Main loop закрыт")

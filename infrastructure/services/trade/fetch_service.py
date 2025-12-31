@@ -4,7 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from domain.models.logic import InstumentType, TimeFrame
 from infrastructure.services.export_service import ExportService
 from infrastructure.services.moex.moex_facade import MoexFacade
-from infrastructure.services.moex.moex_logic import MoexDataService
+from infrastructure.services.moex.moex_data_service import MoexDataService
 
 
 class TradeFetchService:
@@ -21,7 +21,7 @@ class TradeFetchService:
         targets_stocks = stocks[:10]
         targets_futures = futures[:10]
 
-        today = datetime.now().date().strftime("%Y-%m-%d")
+        #today = datetime.now().date().strftime("%Y-%m-%d")
         interval_name = self.interval.name
 
         for ticker in targets_stocks:
@@ -35,6 +35,7 @@ class TradeFetchService:
                     till_date=df["begin"].max().strftime("%Y-%m-%d"),
                     folder="data/stocks"
                 )
+                print(f"{datetime.now()}: save {ticker}")
 
         for ticker in targets_futures:
             df = await self.data.get_last_half_year(ticker, self.interval)
@@ -47,5 +48,6 @@ class TradeFetchService:
                     till_date=df["begin"].max().strftime("%Y-%m-%d"),
                     folder="data/futures"
                 )
+                print(f"{datetime.now()}: save {ticker}")
 
         print(f"{datetime.now()} - Trade fetch completed")

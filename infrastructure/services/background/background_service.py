@@ -1,7 +1,7 @@
+import asyncio
 from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-
 from domain.models.system import BackgroundTask
 
 class BackgroundService:
@@ -12,7 +12,12 @@ class BackgroundService:
         self.job_id = name
 
     async def run(self) -> None:
-        await self.func()
+        try:
+            await self.func()
+        except asyncio.CancelledError:
+            return
+        except Exception as e:
+            print(f"[{self.name}] error: {e}")
 
     def register(self, scheduler: AsyncIOScheduler) -> None:
         scheduler.add_job(self.run, self.cron, id=self.job_id)
