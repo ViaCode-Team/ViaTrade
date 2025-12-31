@@ -40,7 +40,9 @@ class JwtTokenHelper(ITokenHelper):
             "type": "refresh",
         }
 
-        access_token = jwt.encode(access_payload, self.secret_key, algorithm=self.algorithm)
+        access_token = jwt.encode(
+            access_payload, self.secret_key, algorithm=self.algorithm
+        )
         refresh_token = jwt.encode(
             refresh_payload, self.secret_key, algorithm=self.algorithm
         )
@@ -86,7 +88,7 @@ class JwtTokenHelper(ITokenHelper):
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             exp = payload["exp"]
-            
+
             ttl = int(exp - datetime.utcnow().timestamp())
             if ttl > 0:
                 await self.redis_client.set(f"revoked_token:{token}", "revoked", ex=ttl)
