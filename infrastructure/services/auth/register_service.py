@@ -24,7 +24,9 @@ class RegisterService(IAuthService):
     async def execute(self, dto: RegisterDto) -> TokenResponseDto:
         existing_user = await self.user_repo.get_by_login(dto.login)
         if existing_user:
-            raise UserAlreadyExistsException(f"User with login '{dto.login}' already exists")
+            raise UserAlreadyExistsException(
+                f"User with login '{dto.login}' already exists"
+            )
 
         hashed_password = self.password_hasher.hash_password(dto.password)
         user = User(login=dto.login, hash_password=hashed_password)

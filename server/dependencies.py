@@ -3,7 +3,7 @@ from redis.asyncio import Redis
 
 from infrastructure.config.app import AppConfig
 
-config = AppConfig()
+config = AppConfig() # pyright: ignore[reportCallIssue]
 
 engine = create_async_engine(
     config.db.build_url(),
