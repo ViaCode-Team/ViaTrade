@@ -20,3 +20,7 @@ class UserAlreadyExistsException(AuthException):
 
 class UserNotFoundException(AuthException):
     pass
+
+
+class InvalidInstrumentCodeError(Exception):
+    pass

@@ -1,9 +1,6 @@
-from infrastructure.services.moex.moex_client import MoexApiClient
+from infrastructure.services.moex.moex_client import BaseMoexClient
 
 
-class FuturesService:
+class FuturesClient(BaseMoexClient):
     def __init__(self):
-        self.api = MoexApiClient()
-
-    async def get_all_futures(self) -> list[str]:
-        return await self.api.get_instruments_list(is_futures=True)
+        super().__init__("https://iss.moex.com/iss/engines/futures/markets/forts/securities")

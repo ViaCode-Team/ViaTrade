@@ -1,12 +1,14 @@
-from infrastructure.services.moex.moex_client import MoexApiClient
-from infrastructure.services.moex.moex_logic import MoexLogicService
-from infrastructure.services.moex.futures_service import FuturesService
-from infrastructure.services.moex.stocks_service import StocksService
+from infrastructure.services.moex.moex_facade import MoexFacade
+from infrastructure.services.moex.stocks_service import StocksClient
+from infrastructure.services.moex.futures_service import FuturesClient
+from infrastructure.services.moex.moex_client import BaseMoexClient
+from infrastructure.services.moex.moex_logic import MoexDataService
 
 
 __all__ = [
-    'MoexApiClient',
-    'MoexLogicService',
-    'FuturesService',
-    'StocksService'
+    'BaseMoexClient',
+    'StocksClient',
+    'FuturesClient',
+    'MoexFacade',
+    'MoexDataService'
 ]

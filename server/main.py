@@ -53,21 +53,32 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 import asyncio
-from infrastructure.services.moex.moex_logic import MoexLogicService
-from domain.model import TimeFrame
-
+from domain.models.logic import TimeFrame
+from infrastructure.services.moex.moex_logic import MoexDataService
+from apscheduler.triggers.cron import CronTrigger
+from infrastructure.services.background.background_service import BackgroundService
+from infrastructure.services.background.service_manager import ServiceManager
+from infrastructure.services.trade.fetch_service import TradeFetchService
 
 async def main():
-    logic = MoexLogicService()
 
-    df_fut = await logic.get_unified_candles(
-        ticker="SiZ5",
-        interval=TimeFrame.HOUR,
-        instrument_type="futures"
+    cron = CronTrigger(minute=0, second=0)
+    task = TradeFetchService(cron)
+
+    service = BackgroundService(
+        name="tarade_fetch",
+        func=task,
+        cron=cron
     )
 
-    print(df_fut.head())
+    manager = ServiceManager()
+    manager.add_service(service)
 
+    manager.run_now("tarade_fetch")
+
+    manager.start()
+
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
     asyncio.run(main())

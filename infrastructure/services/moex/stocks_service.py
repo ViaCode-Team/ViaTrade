@@ -1,9 +1,6 @@
-from infrastructure.services.moex.moex_client import MoexApiClient
+from infrastructure.services.moex.moex_client import BaseMoexClient
 
 
-class StocksService:
+class StocksClient(BaseMoexClient):
     def __init__(self):
-        self.api = MoexApiClient()
-
-    async def get_all_stocks(self) -> list[str]:
-        return await self.api.get_instruments_list(is_futures=False)
+        super().__init__("https://iss.moex.com/iss/engines/stock/markets/shares/securities")
