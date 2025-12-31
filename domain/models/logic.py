@@ -1,8 +1,9 @@
+# Trade Models
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-# Trade Models
+
 class SignalType(Enum):
     BUY = "Buy"
     SELL = "Sell"
@@ -44,18 +45,4 @@ class TimeFrame(Enum):
     DAY = 24
     WEEK = 7
     MONTH = 31
-
-
-# JWT Models
-@dataclass
-class TokenPair:
-    access_token: str
-    refresh_token: str
-
-@dataclass
-class TokenPayload:
-    user_id: int
-    login: str
-    exp: datetime
-    iat: datetime
 

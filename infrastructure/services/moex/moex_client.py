@@ -1,7 +1,9 @@
+import asyncio
 import aiohttp
 import pandas as pd
 from datetime import datetime, timedelta, date
-from domain.model import TimeFrame
+from domain.models.logic import TimeFrame
+from typing import Optional, Dict
 
 
 class BaseMoexClient:
@@ -10,32 +12,43 @@ class BaseMoexClient:
     def __init__(self, base_url: str):
         self.base_url = base_url
 
-    async def _get(self, session: aiohttp.ClientSession, url: str, params: dict | None = None) -> dict:
-        async with session.get(url, params=params) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+    async def _get(self, session: aiohttp.ClientSession, url: str, params: Optional[Dict] = None) -> dict:
+        try:
+            async with session.get(url, params=params) as resp:
+                resp.raise_for_status()
+                return await resp.json()
+        except aiohttp.ClientResponseError as e:
+            print(f"HTTP ошибка: {e.status} {e.message}")
+        except aiohttp.ClientError as e:
+            print(f"Ошибка клиента: {e}")
+        except asyncio.TimeoutError:
+            print("Время запроса истекло")
+        return {}
 
-    async def get_all_instruments(self) -> list[str]:
+    async def get_all_instruments(self, session: aiohttp.ClientSession) -> list[str]:
         url = f"{self.base_url}.json"
-        async with aiohttp.ClientSession() as session:
-            data = await self._get(session, url)
-            securities = data.get("securities", {}).get("data", [])
-            columns = data.get("securities", {}).get("columns", [])
-            if not securities:
-                return []
-            if "SECID" not in columns:
-                return []
-            idx = columns.index("SECID")
-            return [row[idx] for row in securities if row[idx]]
+        data = await self._get(session, url)
+        securities = data.get("securities", {}).get("data", [])
+        columns = data.get("securities", {}).get("columns", [])
+        if not securities or "SECID" not in columns:
+            return []
+        idx = columns.index("SECID")
+        return [row[idx] for row in securities if row[idx]]
 
-    async def _load_candles_raw(self, session: aiohttp.ClientSession, ticker: str, interval: TimeFrame, start: date, end: date) -> pd.DataFrame:
+    async def _load_candles_raw(
+        self,
+        session: aiohttp.ClientSession,
+        ticker: str,
+        interval: TimeFrame,
+        start: date,
+        end: date,
+    ) -> pd.DataFrame:
         url = f"{self.base_url}/{ticker}/candles.json"
         params = {
             "from": start.strftime("%Y-%m-%d"),
             "till": end.strftime("%Y-%m-%d"),
-            "interval": interval.value
+            "interval": interval.value,
         }
-
         data = await self._get(session, url, params)
         candles = data.get("candles", {}).get("data", [])
         columns = data.get("candles", {}).get("columns", [])
@@ -64,25 +77,35 @@ class BaseMoexClient:
             return 15000
         return 500
 
-    async def get_candles(self, ticker: str, interval: TimeFrame, from_date: str | None, till_date: str | None) -> pd.DataFrame:
+    async def get_candles(
+        self,
+        session: aiohttp.ClientSession,
+        ticker: str,
+        interval: TimeFrame,
+        from_date: Optional[str],
+        till_date: Optional[str],
+    ) -> pd.DataFrame:
         till = datetime.strptime(till_date, "%Y-%m-%d").date() if till_date else datetime.now().date()
-        start = datetime.strptime(from_date, "%Y-%m-%d").date() if from_date else till - timedelta(days=180)
+        start = (
+            datetime.strptime(from_date, "%Y-%m-%d").date()
+            if from_date
+            else till - timedelta(days=180)
+        )
 
         total_days = (till - start).days
         max_days = self._estimate_max_days(interval)
 
-        async with aiohttp.ClientSession() as session:
-            if total_days <= max_days:
-                return await self._load_candles_raw(session, ticker, interval, start, till)
+        if total_days <= max_days:
+            return await self._load_candles_raw(session, ticker, interval, start, till)
 
-            frames = []
-            cur = start
-            while cur < till:
-                end = min(cur + timedelta(days=max_days), till)
-                df = await self._load_candles_raw(session, ticker, interval, cur, end)
-                if not df.empty:
-                    frames.append(df)
-                cur = end + timedelta(days=1)
+        frames = []
+        cur = start
+        while cur < till:
+            end = min(cur + timedelta(days=max_days), till)
+            df = await self._load_candles_raw(session, ticker, interval, cur, end)
+            if not df.empty:
+                frames.append(df)
+            cur = end + timedelta(days=1)
 
         if not frames:
             return pd.DataFrame()

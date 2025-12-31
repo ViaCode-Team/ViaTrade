@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-
-
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # from fastapi import FastAPI
@@ -55,20 +53,32 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 import asyncio
-from domain.model import TimeFrame
+from domain.models.logic import TimeFrame
 from infrastructure.services.moex.moex_logic import MoexDataService
-
+from apscheduler.triggers.cron import CronTrigger
+from infrastructure.services.background.background_service import BackgroundService
+from infrastructure.services.background.service_manager import ServiceManager
+from infrastructure.services.trade.fetch_service import TradeFetchService
 
 async def main():
-    service = MoexDataService()
 
-    df = await service.get_last_half_year(
-        ticker="BRX5",
-        interval=TimeFrame.DAY
+    cron = CronTrigger(minute=0, second=0)
+    task = TradeFetchService(cron)
+
+    service = BackgroundService(
+        name="tarade_fetch",
+        func=task,
+        cron=cron
     )
 
-    print(df.head())
+    manager = ServiceManager()
+    manager.add_service(service)
 
+    manager.run_now("tarade_fetch")
+
+    manager.start()
+
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
     asyncio.run(main())

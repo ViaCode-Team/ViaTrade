@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pandas as pd
-from domain.model import TimeFrame
+from domain.models.logic import TimeFrame
 from infrastructure.services.moex.moex_facade import MoexFacade
 
 
