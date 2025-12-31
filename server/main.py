@@ -53,39 +53,43 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
 import asyncio
-from domain.models.logic import TimeFrame
-from infrastructure.services.moex.moex_data_service import MoexDataService
+import logging
+from infrastructure.config.setup_logger import setup_logger
 from apscheduler.triggers.cron import CronTrigger
 from infrastructure.services.background.background_service import BackgroundService
 from infrastructure.services.background.service_manager import ServiceManager
 from infrastructure.services.trade.fetch_service import TradeFetchService
 
-async def main():
 
+setup_logger()
+logger = logging.getLogger(__name__)  # create module logger
+
+
+async def main():
     cron = CronTrigger(minute=0, second=0)
     task = TradeFetchService(cron)
 
-    service = BackgroundService(
-        name="tarade_fetch",
-        func=task,
-        cron=cron
-    )
+    service = BackgroundService(name="trade_fetch", func=task, cron=cron)
 
     manager = ServiceManager()
     manager.add_service(service)
 
-    manager.run_now("tarade_fetch")
-
+    logger.info("Starting trade_fetch service...")
+    manager.run_now("trade_fetch")
     manager.start()
+    logger.info("Service started, main loop is waiting for events...")
 
     await asyncio.Event().wait()
+
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Прерывание пользователем, завершение работы...")
+        logger.warning("Interrupted by user, shutting down...")
     except asyncio.CancelledError:
-        print("Асинхронная задача была отменена")
+        logger.warning("Async task cancelled!")
+    except Exception as e:
+        logger.error("Unexpected error: %s", e, exc_info=True)
     finally:
-        print("Main loop закрыт")
+        logger.info("Main loop closed")
